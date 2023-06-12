@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  app:
+    stdin_open: true
+    tty: true
+    build: .
+    image: heartexlabs/label-studio:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DJANGO_DB=default
+      - POSTGRE_NAME=postgres
+      - POSTGRE_USER=postgres
+      - POSTGRE_PASSWORD=
+      - POSTGRE_PORT=5432
+      - POSTGRE_HOST=db
+      - LABEL_STUDIO_HOST=${LABEL_STUDIO_HOST:-}
+      - JSON_LOG=1
+      - LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK=true
+        #      - LOG_LEVEL=INFO
+    volumes:
+      - /data/labelstudio/mydata:/label-studio/data:rw
+    command: label-studio-uwsgi
+
+  db:
+    image: postgres:11.5
+    hostname: db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - /data/labelstudio/postgres-data:/var/lib/postgresql/data
+      - /data/labelstudio/deploy/pgsql/certs:/var/lib/postgresql/certs:ro
+
+  frameextractor:
+    image: iank1/frameextractor:v0.4.0
+    depends_on:
+      - vectordb
+    ports:
+      - "127.0.0.1:5053:5053"
+    volumes:
+      - ./lively_station_9801_best.pt:/app/lively_station_9801_best.pt
+      - ./frameextractor.ini:/app/frameextractor.ini
+
+  vectordb:
+    image: ankane/pgvector
+    hostname: vectordb
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - /data/vectordb/postgres-data:/var/lib/postgresql/data
