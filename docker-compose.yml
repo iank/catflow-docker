@@ -37,7 +37,7 @@ services:
       - /data/labelstudio/deploy/pgsql/certs:/var/lib/postgresql/certs:ro
 
   frameextractor:
-    image: iank1/frameextractor:v0.4.1
+    image: iank1/frameextractor:v0.4.2
     depends_on:
       - vectordb
     ports:
