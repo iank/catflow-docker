@@ -43,7 +43,7 @@ services:
     ports:
       - "127.0.0.1:5053:5053"
     volumes:
-      - ./lively_station_9801_best.pt:/app/lively_station_9801_best.pt
+      - ./managerial_jigsaw_6080_best.pt:/app/managerial_jigsaw_6080_best.pt
       - ./frameextractor.ini:/app/frameextractor.ini
 
   vectordb:
