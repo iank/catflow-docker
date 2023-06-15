@@ -56,3 +56,13 @@ services:
       - "127.0.0.1:5433:5432"
     volumes:
       - /data/vectordb/postgres-data:/var/lib/postgresql/data
+
+  inference:
+    image: iank1/catflow_inference:v0.1.0
+    ports:
+      - "127.0.0.1:5054:5054"
+    environment:
+      - YOLO_THRESHOLD=${YOLO_THRESHOLD}
+      - YOLO_WEIGHTS=${YOLO_WEIGHTS}
+    volumes:
+      - ./managerial_jigsaw_6080_best.pt:/app/managerial_jigsaw_6080_best.pt
