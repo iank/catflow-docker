@@ -58,7 +58,7 @@ services:
       - /data/vectordb/postgres-data:/var/lib/postgresql/data
 
   inference:
-    image: iank1/catflow_inference:v0.1.0
+    image: iank1/catflow_inference:v0.1.1
     ports:
       - "127.0.0.1:5054:5054"
     environment:
