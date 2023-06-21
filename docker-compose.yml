@@ -37,7 +37,7 @@ services:
       - /data/labelstudio/deploy/pgsql/certs:/var/lib/postgresql/certs:ro
 
   frameextractor:
-    image: iank1/frameextractor:v0.5.4
+    image: iank1/frameextractor:v0.5.5
     depends_on:
       - vectordb
     ports:
@@ -58,7 +58,7 @@ services:
       - /data/vectordb/postgres-data:/var/lib/postgresql/data
 
   inference:
-    image: iank1/catflow_inference:v0.1.1
+    image: iank1/catflow_inference:v0.2.0
     ports:
       - "127.0.0.1:5054:5054"
     environment:
