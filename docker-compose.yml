@@ -38,6 +38,7 @@ services:
 
   frameextractor:
     image: iank1/frameextractor:v0.5.5
+    restart: unless-stopped
     depends_on:
       - vectordb
     ports:
@@ -59,6 +60,7 @@ services:
 
   inference:
     image: iank1/catflow_inference:v0.2.0
+    restart: unless-stopped
     ports:
       - "127.0.0.1:5054:5054"
     environment:
@@ -66,3 +68,26 @@ services:
       - YOLO_WEIGHTS=${YOLO_WEIGHTS}
     volumes:
       - ./uncertain_hummingbird_2281_best.pt:/app/uncertain_hummingbird_2281_best.pt
+
+
+  rabbitmq:
+    image: rabbitmq:latest
+    restart: unless-stopped
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+
+  ingest:
+    image: iank1/catflow_ingest:latest
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5057:5057"
+    environment:
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE=${INGEST_RABBITMQ_EXCHANGE}
+      - AWS_ACCESS_KEY_ID=${INGEST_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${INGEST_AWS_SECRET_ACCESS_KEY}
+      - S3_ENDPOINT_URL=${INGEST_S3_ENDPOINT_URL}
+      - AWS_BUCKETNAME=${INGEST_AWS_BUCKETNAME}
