@@ -80,7 +80,7 @@ services:
       - "5672:5672"
 
   ingest:
-    image: iank1/catflow_ingest:main
+    image: iank1/catflow_ingest:v0.1.2
     restart: unless-stopped
     ports:
       - "127.0.0.1:5057:5057"
