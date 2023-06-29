@@ -36,17 +36,6 @@ services:
       - /data/labelstudio/postgres-data:/var/lib/postgresql/data
       - /data/labelstudio/deploy/pgsql/certs:/var/lib/postgresql/certs:ro
 
-  frameextractor:
-    image: iank1/frameextractor:v0.5.5
-    restart: unless-stopped
-    depends_on:
-      - vectordb
-    ports:
-      - "127.0.0.1:5053:5053"
-    volumes:
-      - ./uncertain_hummingbird_2281_best.pt:/app/uncertain_hummingbird_2281_best.pt
-      - ./frameextractor.ini:/app/frameextractor.ini
-
   vectordb:
     image: ankane/pgvector
     hostname: vectordb
@@ -77,60 +66,88 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
     ports:
-      - "5672:5672"
+      - "127.0.0.1:5672:5672"
+      - "10.76.22.10:5672:5672"
 
   ingest:
     image: iank1/catflow_ingest:v0.2.0
     restart: unless-stopped
     ports:
       - "127.0.0.1:5057:5057"
+    depends_on:
+      - rabbitmq
     environment:
       - RABBITMQ_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
-      - RABBITMQ_EXCHANGE=${INGEST_RABBITMQ_EXCHANGE}
-      - AWS_ACCESS_KEY_ID=${INGEST_AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${INGEST_AWS_SECRET_ACCESS_KEY}
-      - S3_ENDPOINT_URL=${INGEST_S3_ENDPOINT_URL}
-      - AWS_BUCKETNAME=${INGEST_AWS_BUCKETNAME}
+      - RABBITMQ_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
+      - AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
+      - S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - AWS_BUCKETNAME=${CATFLOW_AWS_BUCKETNAME}
 
   videosplit:
     image: iank1/catflow_service_videosplit:v0.3.0
     restart: unless-stopped
+    depends_on:
+      - rabbitmq
     environment:
       - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
-      - CATFLOW_AMQP_EXCHANGE=${INGEST_RABBITMQ_EXCHANGE}
-      - CATFLOW_AWS_ACCESS_KEY_ID=${INGEST_AWS_ACCESS_KEY_ID}
-      - CATFLOW_AWS_SECRET_ACCESS_KEY=${INGEST_AWS_SECRET_ACCESS_KEY}
-      - CATFLOW_S3_ENDPOINT_URL=${INGEST_S3_ENDPOINT_URL}
-      - CATFLOW_AWS_BUCKET_NAME=${INGEST_AWS_BUCKETNAME}
+      - CATFLOW_AMQP_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
+      - CATFLOW_AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
+      - CATFLOW_AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
+      - CATFLOW_S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
 
   inference-svc:
-    image: iank1/catflow_service_inference:v0.3.0
+    image: iank1/catflow_service_inference:v0.3.1
     restart: unless-stopped
+    depends_on:
+      - rabbitmq
     environment:
       - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
-      - CATFLOW_AMQP_EXCHANGE=${INGEST_RABBITMQ_EXCHANGE}
-      - CATFLOW_AWS_ACCESS_KEY_ID=${INGEST_AWS_ACCESS_KEY_ID}
-      - CATFLOW_AWS_SECRET_ACCESS_KEY=${INGEST_AWS_SECRET_ACCESS_KEY}
-      - CATFLOW_S3_ENDPOINT_URL=${INGEST_S3_ENDPOINT_URL}
-      - CATFLOW_AWS_BUCKET_NAME=${INGEST_AWS_BUCKETNAME}
+      - CATFLOW_AMQP_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
+      - CATFLOW_AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
+      - CATFLOW_AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
+      - CATFLOW_S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
       - CATFLOW_MODEL_NAME=${CATFLOW_MODEL_NAME}
       - CATFLOW_MODEL_THRESHOLD=${CATFLOW_MODEL_THRESHOLD}
     volumes:
       - ./uncertain_hummingbird_2281_best.pt:/app/uncertain_hummingbird_2281_best.pt
 
   filter:
-    image: iank1/catflow_service_filter:v0.1.2
+    image: iank1/catflow_service_filter:v0.1.3
     restart: unless-stopped
+    depends_on:
+      - rabbitmq
+      - vectordb
     environment:
       - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
-      - CATFLOW_AMQP_EXCHANGE=${INGEST_RABBITMQ_EXCHANGE}
-      - CATFLOW_AWS_ACCESS_KEY_ID=${INGEST_AWS_ACCESS_KEY_ID}
-      - CATFLOW_AWS_SECRET_ACCESS_KEY=${INGEST_AWS_SECRET_ACCESS_KEY}
-      - CATFLOW_S3_ENDPOINT_URL=${INGEST_S3_ENDPOINT_URL}
-      - CATFLOW_AWS_BUCKET_NAME=${INGEST_AWS_BUCKETNAME}
+      - CATFLOW_AMQP_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
+      - CATFLOW_AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
+      - CATFLOW_AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
+      - CATFLOW_S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
       - CATFLOW_PG_HOST=${CATFLOW_PG_HOST}
       - CATFLOW_PG_DBNAME=${CATFLOW_PG_DBNAME}
       - CATFLOW_PG_USER=${CATFLOW_PG_USER}
       - CATFLOW_PG_PASSWORD=${CATFLOW_PG_PASSWORD}
       - CATFLOW_PG_PORT=${CATFLOW_PG_PORT}
       - CATFLOW_VDB_THRESHOLD=${CATFLOW_VDB_THRESHOLD}
+
+  taskcreator:
+    image: iank1/catflow_service_taskcreator:v0.1.1
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+      - app
+    environment:
+      - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
+      - CATFLOW_AMQP_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
+      - CATFLOW_AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
+      - CATFLOW_AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
+      - CATFLOW_S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
+      - CATFLOW_LS_BUCKET_NAME=${CATFLOW_LS_BUCKET_NAME}
+      - CATFLOW_LS_BASE_URL=${CATFLOW_LS_BASE_URL}
+      - CATFLOW_LS_PROJECT_ID=${CATFLOW_LS_PROJECT_ID}
+      - CATFLOW_LS_AUTH_TOKEN=${CATFLOW_LS_AUTH_TOKEN}
