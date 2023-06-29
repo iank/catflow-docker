@@ -80,7 +80,7 @@ services:
       - "5672:5672"
 
   ingest:
-    image: iank1/catflow_ingest:v0.1.2
+    image: iank1/catflow_ingest:v0.2.0
     restart: unless-stopped
     ports:
       - "127.0.0.1:5057:5057"
@@ -93,7 +93,7 @@ services:
       - AWS_BUCKETNAME=${INGEST_AWS_BUCKETNAME}
 
   videosplit:
-    image: iank1/catflow_service_videosplit:main
+    image: iank1/catflow_service_videosplit:v0.3.0
     restart: unless-stopped
     environment:
       - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
@@ -104,7 +104,7 @@ services:
       - CATFLOW_AWS_BUCKET_NAME=${INGEST_AWS_BUCKETNAME}
 
   inference-svc:
-    image: iank1/catflow_service_inference:main
+    image: iank1/catflow_service_inference:v0.3.0
     restart: unless-stopped
     environment:
       - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
@@ -117,3 +117,20 @@ services:
       - CATFLOW_MODEL_THRESHOLD=${CATFLOW_MODEL_THRESHOLD}
     volumes:
       - ./uncertain_hummingbird_2281_best.pt:/app/uncertain_hummingbird_2281_best.pt
+
+  filter:
+    image: iank1/catflow_service_filter:v0.1.2
+    restart: unless-stopped
+    environment:
+      - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
+      - CATFLOW_AMQP_EXCHANGE=${INGEST_RABBITMQ_EXCHANGE}
+      - CATFLOW_AWS_ACCESS_KEY_ID=${INGEST_AWS_ACCESS_KEY_ID}
+      - CATFLOW_AWS_SECRET_ACCESS_KEY=${INGEST_AWS_SECRET_ACCESS_KEY}
+      - CATFLOW_S3_ENDPOINT_URL=${INGEST_S3_ENDPOINT_URL}
+      - CATFLOW_AWS_BUCKET_NAME=${INGEST_AWS_BUCKETNAME}
+      - CATFLOW_PG_HOST=${CATFLOW_PG_HOST}
+      - CATFLOW_PG_DBNAME=${CATFLOW_PG_DBNAME}
+      - CATFLOW_PG_USER=${CATFLOW_PG_USER}
+      - CATFLOW_PG_PASSWORD=${CATFLOW_PG_PASSWORD}
+      - CATFLOW_PG_PORT=${CATFLOW_PG_PORT}
+      - CATFLOW_VDB_THRESHOLD=${CATFLOW_VDB_THRESHOLD}
