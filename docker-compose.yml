@@ -47,18 +47,6 @@ services:
     volumes:
       - /data/vectordb/postgres-data:/var/lib/postgresql/data
 
-  inference:
-    image: iank1/catflow_inference:v0.2.0
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:5054:5054"
-    environment:
-      - YOLO_THRESHOLD=${YOLO_THRESHOLD}
-      - YOLO_WEIGHTS=${YOLO_WEIGHTS}
-    volumes:
-      - ./uncertain_hummingbird_2281_best.pt:/app/uncertain_hummingbird_2281_best.pt
-
-
   rabbitmq:
     image: rabbitmq:latest
     restart: unless-stopped
@@ -152,3 +140,20 @@ services:
       - CATFLOW_LS_BASE_URL=${CATFLOW_LS_BASE_URL}
       - CATFLOW_LS_PROJECT_ID=${CATFLOW_LS_PROJECT_ID}
       - CATFLOW_LS_AUTH_TOKEN=${CATFLOW_LS_AUTH_TOKEN}
+
+  detector:
+    image: iank1/catflow_service_detector:v0.1.1
+    restart: unless-stopped
+    depends_on:
+      - rabbitmq
+    environment:
+      - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
+      - CATFLOW_AMQP_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
+      - CATFLOW_AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
+      - CATFLOW_AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
+      - CATFLOW_S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
+      - CATFLOW_SIGNAL_URL=${CATFLOW_SIGNAL_URL}
+      - CATFLOW_SIGNAL_SOURCE=${CATFLOW_SIGNAL_SOURCE}
+      - CATFLOW_SIGNAL_DEST=${CATFLOW_SIGNAL_DEST}
+      - CATFLOW_DETECTOR_CLASSES=${CATFLOW_DETECTOR_CLASSES}

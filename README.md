@@ -16,8 +16,7 @@ docker-compose for an object recognition data pipeline
 * [catflow-service-inference](https://github.com/iank/catflow_service_inference): Inference service
 * [catflow-service-filter](https://github.com/iank/catflow_service_filter): Vector database filtering service
 * [catflow-service-taskcreator](https://github.com/iank/catflow_service_taskcreator): Label Studio task creation service
-
-* [inference](https://github.com/iank/catflow-inference): Inference endpoint (Detect a cat in a video and return an image w/ it highlighted)
+* [catflow-service-detector](https://github.com/iank/catflow_service_detector): Detection/notification service
 
 
 ## Support
