@@ -124,7 +124,7 @@ services:
       - CATFLOW_VDB_THRESHOLD=${CATFLOW_VDB_THRESHOLD}
 
   taskcreator:
-    image: iank1/catflow_service_taskcreator:v0.1.1
+    image: iank1/catflow_service_taskcreator:v0.1.2
     restart: unless-stopped
     depends_on:
       - rabbitmq
@@ -142,7 +142,7 @@ services:
       - CATFLOW_LS_AUTH_TOKEN=${CATFLOW_LS_AUTH_TOKEN}
 
   detector:
-    image: iank1/catflow_service_detector:v0.1.1
+    image: iank1/catflow_service_detector:v0.1.2
     restart: unless-stopped
     depends_on:
       - rabbitmq
