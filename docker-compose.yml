@@ -23,7 +23,7 @@ services:
       - LABEL_STUDIO_DISABLE_SIGNUP_WITHOUT_LINK=true
         #      - LOG_LEVEL=INFO
     volumes:
-      - /data/labelstudio/mydata:/label-studio/data:rw
+      - ls-data:/label-studio/data:rw
     command: label-studio-uwsgi
 
   db:
@@ -33,8 +33,7 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
-      - /data/labelstudio/postgres-data:/var/lib/postgresql/data
-      - /data/labelstudio/deploy/pgsql/certs:/var/lib/postgresql/certs:ro
+      - ls-postgres-data:/var/lib/postgresql/data
 
   vectordb:
     image: ankane/pgvector
@@ -45,7 +44,7 @@ services:
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
-      - /data/vectordb/postgres-data:/var/lib/postgresql/data
+      - vdb:/var/lib/postgresql/data
 
   rabbitmq:
     image: rabbitmq:latest
@@ -55,7 +54,6 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
     ports:
       - "127.0.0.1:5672:5672"
-      - "10.76.22.10:5672:5672"
       - "127.0.0.1:15692:15692"   # prometheus exporter
 
   ingest:
@@ -87,7 +85,7 @@ services:
       - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
 
   inference-svc:
-    image: iank1/catflow_service_inference:v0.3.1
+    image: iank1/catflow_service_inference:v0.3.2
     restart: unless-stopped
     depends_on:
       - rabbitmq
@@ -157,3 +155,10 @@ services:
       - CATFLOW_SIGNAL_SOURCE=${CATFLOW_SIGNAL_SOURCE}
       - CATFLOW_SIGNAL_DEST=${CATFLOW_SIGNAL_DEST}
       - CATFLOW_DETECTOR_CLASSES=${CATFLOW_DETECTOR_CLASSES}
+
+volumes:
+  vdb:
+  ls-data:
+    external: true
+  ls-postgres-data:
+    external: true
