@@ -122,7 +122,7 @@ services:
       - CATFLOW_VDB_THRESHOLD=${CATFLOW_VDB_THRESHOLD}
 
   taskcreator:
-    image: iank1/catflow_service_taskcreator:v0.1.2
+    image: iank1/catflow_service_taskcreator:v0.1.4
     restart: unless-stopped
     depends_on:
       - rabbitmq
@@ -133,6 +133,8 @@ services:
       - CATFLOW_AWS_ACCESS_KEY_ID=${CATFLOW_AWS_ACCESS_KEY_ID}
       - CATFLOW_AWS_SECRET_ACCESS_KEY=${CATFLOW_AWS_SECRET_ACCESS_KEY}
       - CATFLOW_S3_ENDPOINT_URL=${CATFLOW_S3_ENDPOINT_URL}
+      - CATFLOW_S3_WEB_URL=${CATFLOW_S3_WEB_URL}
+      - CATFLOW_TASK_CREATION_PROB=${CATFLOW_TASK_CREATION_PROB}
       - CATFLOW_AWS_BUCKET_NAME=${CATFLOW_AWS_BUCKETNAME}
       - CATFLOW_LS_BUCKET_NAME=${CATFLOW_LS_BUCKET_NAME}
       - CATFLOW_LS_BASE_URL=${CATFLOW_LS_BASE_URL}
