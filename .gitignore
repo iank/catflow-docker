@@ -1,3 +1,4 @@
 /.env
 /frameextractor.ini
 /uncertain_hummingbird_2281_best.pt
+/post-script.sh

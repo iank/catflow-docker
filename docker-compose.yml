@@ -35,6 +35,23 @@ services:
     volumes:
       - ls-postgres-data:/var/lib/postgresql/data
 
+  db-backup:
+    image: tiredofit/db-backup:latest
+    volumes:
+      - /data/config/labelstudio/db:/backup
+      - ./post-script.sh:/assets/custom-scripts/post-script.sh
+    environment:
+      - TIMEZONE=America/New_York
+      - DB_TYPE=pgsql
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASS=
+      - DB_DUMP_BEGIN=+1
+      - DB_DUMP_FREQ=1440
+      - DB_CLEANUP_TIME=2880
+      - CONTAINER_ENABLE_MONITORING=FALSE
+
   vectordb:
     image: ankane/pgvector
     hostname: vectordb
