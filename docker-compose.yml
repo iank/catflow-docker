@@ -116,7 +116,7 @@ services:
       - CATFLOW_MODEL_NAME=${CATFLOW_MODEL_NAME}
       - CATFLOW_MODEL_THRESHOLD=${CATFLOW_MODEL_THRESHOLD}
     volumes:
-      - ./uncertain_hummingbird_2281_best.pt:/app/uncertain_hummingbird_2281_best.pt
+      - ./liquid_robot_2568_best.pt:/app/liquid_robot_2568_best.pt
 
   filter:
     image: iank1/catflow_service_filter:v0.1.3
@@ -143,7 +143,6 @@ services:
     restart: unless-stopped
     depends_on:
       - rabbitmq
-      - app
     environment:
       - CATFLOW_AMQP_URL=amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
       - CATFLOW_AMQP_EXCHANGE=${CATFLOW_RABBITMQ_EXCHANGE}
