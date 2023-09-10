@@ -5,7 +5,7 @@ services:
     stdin_open: true
     tty: true
     build: .
-    image: heartexlabs/label-studio:latest
+    image: heartexlabs/label-studio:1.8.2
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"
@@ -36,7 +36,7 @@ services:
       - ls-postgres-data:/var/lib/postgresql/data
 
   db-backup:
-    image: tiredofit/db-backup:latest
+    image: tiredofit/db-backup:3.9.12
     volumes:
       - /data/config/labelstudio/db:/backup
       - ./post-script.sh:/assets/custom-scripts/post-script.sh
@@ -64,7 +64,7 @@ services:
       - vdb:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3.12
     restart: unless-stopped
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
