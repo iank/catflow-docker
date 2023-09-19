@@ -36,7 +36,7 @@ services:
       - ls-postgres-data:/var/lib/postgresql/data
 
   db-backup:
-    image: tiredofit/db-backup:3.10.1
+    image: tiredofit/db-backup:3.10.2
     volumes:
       - /data/config/labelstudio/db:/backup
       - ./post-script.sh:/assets/custom-scripts/post-script.sh
